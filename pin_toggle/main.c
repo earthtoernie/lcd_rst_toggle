@@ -77,13 +77,13 @@ void good_bounce(){
 	// trigger when we go from high to low (off to on)
 	//	uint8_t last_button_value = (PINB & (1<<PINB2)) ? 1 : 0; //read the button
 	while(1){
-		uint8_t button_value = (PINB & (1<<PINB2)) ? 0 : 1; //read the button
+		uint8_t button_value = (PINB & (1<<PINB2)) ? 1 : 0; //read the button
 		volatile uint8_t in_wait_mode = 1;
 		if ((button_value == 1) & (in_wait_mode == 1)){
 			in_wait_mode = 0;
 			//toggle led
 			_delay_ms(50);
-			if((PINB & (1<<PINB2)) ? 1 : 0){
+			if((PINB & (1<<PINB2)) ? 0 : 1){
 				PORTB |= (1<<PB1); // turn on led
 				PORTB &= ~(1<<PB0); // drop 
 				_delay_us(2);
@@ -96,8 +96,69 @@ void good_bounce(){
 		} else {
 //			_delay_ms(500);
 			in_wait_mode = 1;
+//			PORTB ^= (1<<PB1);
 		}
 	}
+}
+
+void btn_trigger(){
+	// trigger when we go from high to low (off to on)
+	//	uint8_t last_button_value = (PINB & (1<<PINB2)) ? 1 : 0; //read the button
+	while(1){
+		uint8_t button_value = (PINB & (1<<PINB2)) ? 0 : 1; //read the button
+		volatile uint8_t in_wait_mode = 1;
+		if ((button_value == 1) & (in_wait_mode == 1)){
+			in_wait_mode = 0;
+			//toggle led
+			_delay_ms(50);
+			if((PINB & (1<<PINB2)) ? 1 : 0){
+				PORTB |= (1<<PB1); // turn on led
+				PORTB &= ~(1<<PB0); // drop
+				_delay_us(2);
+				PORTB |= (1<<PB0);
+				_delay_ms(1000);
+				PORTB &= ~(1<<PB1); //turn off led
+				in_wait_mode = 1;
+			}
+			
+			} else {
+			//			_delay_ms(500);
+			in_wait_mode = 1;
+
+		}
+	}
+}
+
+
+// fast blinking, then returns and puts in wait for a pin to go low (also sets led to solid
+wait_for_btn(){
+		// trigger when we go from high to low (off to on)
+		//	uint8_t last_button_value = (PINB & (1<<PINB2)) ? 1 : 0; //read the button
+		while(1){
+			uint8_t button_value = (PINB & (1<<PINB2)) ? 0 : 1; //read the button
+			volatile uint8_t in_wait_mode = 1;
+			if ((button_value == 1) & (in_wait_mode == 1)){
+				in_wait_mode = 0;
+				//toggle led
+				_delay_ms(50);
+				if((PINB & (1<<PINB2)) ? 1 : 0){
+					PORTB |= (1<<PB1); // turn on led
+					PORTB &= ~(1<<PB0); // drop
+					_delay_us(2);
+					PORTB |= (1<<PB0);
+					_delay_ms(1000);
+					PORTB &= ~(1<<PB1); //turn off led
+					in_wait_mode = 1;
+				}
+				
+				} else {
+				in_wait_mode = 1;
+				_delay_ms(100);
+				PORTB ^= (1<<PB1);
+				in_wait_mode = 1;
+			}
+		}
+	
 }
 
 void trigger_low(){
@@ -121,6 +182,6 @@ void trigger_low(){
 int main(void)
 {
 	init_avr();
-	good_bounce();
+	wait_for_btn();
 }
 
